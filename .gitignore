@@ -148,7 +148,12 @@ poppler/
 .env.local
 .env.*.local
 
-# Model files (uncomment if you want to exclude large model files)
-# *.h5
-# *.pkl
-# *.joblib
+# Model files - exclude trained models and generated reports
+*.h5
+*.pkl
+*.joblib
+*.hdf5
+
+# Project P1 - Generated analysis reports
+pyproject_p1/rapport_analyse_modele/
+pyproject_p1/*.h5
