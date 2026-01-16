@@ -10,6 +10,7 @@ from tkinter import ttk, messagebox
 from PIL import Image, ImageDraw, ImageTk
 from tensorflow import keras
 from scipy import ndimage
+import os
 
 
 class DessinInterface:
@@ -40,11 +41,20 @@ class DessinInterface:
     def charger_modele(self):
         """Charge le modèle CNN entraîné"""
         try:
-            modele = keras.models.load_model('modele_mnist_cnn.h5')
-            print("✅ Modèle chargé avec succès")
+            # Obtenir le répertoire du script
+            script_dir = os.path.dirname(os.path.abspath(__file__))
+            model_path = os.path.join(script_dir, 'modele_mnist_cnn.h5')
+            
+            # Vérifier si le fichier existe
+            if not os.path.exists(model_path):
+                print(f"[ERREUR] Fichier modele introuvable: {model_path}")
+                return None
+            
+            modele = keras.models.load_model(model_path)
+            print(f"[OK] Modele charge avec succes depuis: {model_path}")
             return modele
         except Exception as e:
-            print(f"❌ Erreur lors du chargement du modèle: {e}")
+            print(f"[ERREUR] Erreur lors du chargement du modele: {e}")
             return None
     
     def creer_interface(self):
@@ -97,7 +107,7 @@ class DessinInterface:
         
         # Bouton Guess
         self.btn_guess = tk.Button(frame_boutons, 
-                                   text="🔍 Guess", 
+                                   text="Guess", 
                                    command=self.predire,
                                    font=("Arial", 14, "bold"),
                                    bg="#4CAF50",
@@ -108,7 +118,7 @@ class DessinInterface:
         
         # Bouton Clear
         self.btn_clear = tk.Button(frame_boutons, 
-                                   text="🗑️ Clear", 
+                                   text="Clear", 
                                    command=self.effacer,
                                    font=("Arial", 14, "bold"),
                                    bg="#f44336",
@@ -119,7 +129,7 @@ class DessinInterface:
         
         # Instructions
         instructions = tk.Label(self.root, 
-                               text="💡 Cliquez et glissez pour dessiner un chiffre",
+                               text="Astuce: Cliquez et glissez pour dessiner un chiffre",
                                font=("Arial", 10),
                                fg="gray")
         instructions.pack(pady=5)
