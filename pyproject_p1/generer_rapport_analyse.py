@@ -16,8 +16,9 @@ import seaborn as sns
 from datetime import datetime
 import json
 
-# Créer le répertoire pour sauvegarder les résultats
-REPORT_DIR = "rapport_analyse_modele"
+# Créer le répertoire pour sauvegarder les résultats (dans le même répertoire que le script)
+script_dir = os.path.dirname(os.path.abspath(__file__))
+REPORT_DIR = os.path.join(script_dir, "rapport_analyse_modele")
 os.makedirs(REPORT_DIR, exist_ok=True)
 
 # Configuration matplotlib pour de meilleurs graphiques
@@ -37,13 +38,20 @@ def charger_modele_et_donnees():
     print("CHARGEMENT DU MODÈLE ET DES DONNÉES")
     print("=" * 70)
     
+    # Obtenir le répertoire du script
+    script_dir = os.path.dirname(os.path.abspath(__file__))
+    model_path = os.path.join(script_dir, 'modele_mnist_cnn.h5')
+    
     # Charger le modèle
     try:
-        modele = keras.models.load_model('modele_mnist_cnn.h5')
-        print("✅ Modèle chargé avec succès")
+        if not os.path.exists(model_path):
+            print(f"[ERREUR] Fichier modele introuvable: {model_path}")
+            return None, None, None
+        modele = keras.models.load_model(model_path)
+        print(f"[OK] Modele charge avec succes depuis: {model_path}")
     except Exception as e:
-        print(f"❌ Erreur lors du chargement du modèle: {e}")
-        return None, None, None, None
+        print(f"[ERREUR] Erreur lors du chargement du modele: {e}")
+        return None, None, None
     
     # Charger les données de test
     (_, _), (x_test, y_test) = mnist.load_data()
@@ -52,7 +60,7 @@ def charger_modele_et_donnees():
     x_test = x_test.astype('float32') / 255.0
     x_test = np.expand_dims(x_test, -1)
     
-    print(f"✅ Données de test chargées: {x_test.shape[0]} images")
+    print(f"[OK] Donnees de test chargees: {x_test.shape[0]} images")
     
     return modele, x_test, y_test
 
@@ -299,9 +307,9 @@ def generer_exemples_predictions(modele, x_test, y_test, save_path, nombre=30):
         
         # Couleur selon si la prédiction est correcte
         couleur = 'green' if predictions_classes[i] == y_test[indices][i] else 'red'
-        symbole = '✅' if predictions_classes[i] == y_test[indices][i] else '❌'
+        symbole = '[OK]' if predictions_classes[i] == y_test[indices][i] else '[X]'
         
-        ax.set_title(f'{symbole}\nVrai: {y_test[indices][i]}\nPrédit: {predictions_classes[i]}\n({confidences[i]:.1f}%)',
+        ax.set_title(f'{symbole}\nVrai: {y_test[indices][i]}\nPredit: {predictions_classes[i]}\n({confidences[i]:.1f}%)',
                     color=couleur, fontsize=8, fontweight='bold')
         ax.axis('off')
     
@@ -420,8 +428,12 @@ def generer_resume_global(modele, x_test, y_test, save_path):
     """Génère un résumé global des performances"""
     print("\n📊 Génération du résumé global...")
     
+    # Convertir y_test en format one-hot pour l'évaluation
+    from tensorflow.keras.utils import to_categorical
+    y_test_cat = to_categorical(y_test, 10)
+    
     # Évaluation
-    score = modele.evaluate(x_test, verbose=0)
+    score = modele.evaluate(x_test, y_test_cat, verbose=0)
     loss, accuracy = score[0], score[1]
     
     # Prédictions
@@ -525,7 +537,7 @@ def main():
     modele, x_test, y_test = charger_modele_et_donnees()
     
     if modele is None:
-        print("\n❌ Impossible de charger le modèle. Arrêt du programme.")
+        print("\n[ERREUR] Impossible de charger le modele. Arret du programme.")
         return
     
     print(f"\n📁 Tous les fichiers seront sauvegardés dans: {REPORT_DIR}/")
