@@ -200,7 +200,7 @@ Creates professional resumes from user input.
 ## File Structure
 
 ```
-Smart-AI-Resume-Analyzer/
+AI-CV-Analyzer/
 ├── app.py                      # Main application
 ├── utils/
 │   ├── resume_analyzer.py      # Standard analyzer (rule-based)

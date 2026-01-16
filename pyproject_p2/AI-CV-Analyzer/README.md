@@ -49,7 +49,7 @@ A Python-based application built with Streamlit that helps you analyze and optim
 
 1. **Clone or download the repository:**
    ```bash
-   cd Smart-AI-Resume-Analyzer
+   cd AI_python_project\pyproject_p2\AI-CV-Analyzer
    ```
 
 2. **Create a virtual environment (recommended):**
